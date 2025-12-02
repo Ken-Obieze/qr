@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate QR Code{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="main-container">
+        <div class="text-center mb-5 fade-in-up">
+            <h1 class="fw-bold mb-3">Generate Your QR Code</h1>
+            <p class="text-muted">Enter your website URL below to create a custom QR code instantly.</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="p-4 rounded fade-in-up"
+                    style="background: linear-gradient(135deg, #f8fafc, #ffffff); animation-delay: 0.2s;">
+                    <form id="qrForm" action="{% url 'generate_qr' %}" method="post" novalidate>
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
+                                    style="margin-right: 8px;">
+                                    <path
+                                        d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                </svg>
+                                Name Your QR Code
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.name.errors %}
+                                <small>❌ {{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <small class="text-muted">Give your QR code a memorable name (optional)</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.url.id_for_label }}" class="form-label fw-semibold">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
+                                    style="margin-right: 8px;">
+                                    <path
+                                        d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM16 18H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                                </svg>
+                                Website URL
+                            </label>
+                            {{ form.url }}
+                            {% if form.url.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.url.errors %}
+                                <small>❌ {{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="valid-feedback" style="display: none;">
+                                ✅ URL looks good!
+                            </div>
+                            <small class="text-muted">Enter the URL you want to encode (e.g.,
+                                https://example.com)</small>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="spinner" id="loadingSpinner"></div>
+                            <button type="submit" id="submitBtn" class="btn btn-primary btn-lg">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
+                                    style="margin-right: 8px;">
+                                    <path
+                                        d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4z" />
+                                </svg>
+                                <span id="btnText">Generate QR Code</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="text-center mt-4 fade-in" style="animation-delay: 0.4s;">
+                    <a href="{% url 'home' %}" class="text-muted text-decoration-none">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                        </svg>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const form = document.getElementById('qrForm');
+    const urlInput = document.getElementById('{{ form.url.id_for_label }}');
+    const nameInput = document.getElementById('{{ form.name.id_for_label }}');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const spinner = document.getElementById('loadingSpinner');
+
+    // Real-time URL validation
+    urlInput.addEventListener('input', function () {
+        const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+        const value = this.value.trim();
+
+        if (value && urlPattern.test(value)) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+            this.nextElementSibling?.nextElementSibling?.style.setProperty('display', 'block', 'important');
+        } else if (value) {
+            this.classList.remove('is-valid');
+            this.classList.add('is-invalid');
+            this.nextElementSibling?.nextElementSibling?.style.setProperty('display', 'none');
+        } else {
+            this.classList.remove('is-valid', 'is-invalid');
+            this.nextElementSibling?.nextElementSibling?.style.setProperty('display', 'none');
+        }
+    });
+
+    // Form submit with loading state
+    form.addEventListener('submit', function (e) {
+        if (!urlInput.value.trim()) {
+            e.preventDefault();
+            urlInput.classList.add('is-invalid');
+            return;
+        }
+
+        // Show loading state
+        submitBtn.disabled = true;
+        btnText.textContent = 'Generating...';
+        spinner.classList.add('active');
+        submitBtn.style.opacity = '0.7';
+    });
+
+    // Auto-focus on URL field
+    urlInput.focus();
+</script>
+{% endblock %}
