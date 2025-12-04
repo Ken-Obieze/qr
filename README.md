@@ -5,7 +5,17 @@
 ![Bootstrap](https://img.shields.io/badge/bootstrap-5-purple.svg)
 ![License](https://img.shields.io/badge/license-Open%20Source-brightgreen.svg)
 
-![QR Code Generator Screenshot](screenshot.png)
+## Demo
+
+![QR Code Generator Demo](screenshots/home.png)
+![QR Code Generator Demo](screenshots/qr_form.png)
+![QR Code Generator Demo](screenshots/result.png)
+
+### DARK MODE
+![QR Code Generator Demo](screenshots/home_dark.png)
+![QR Code Generator Demo](screenshots/qr_form_dark.png)
+![QR Code Generator Demo](screenshots/result_dark.png)
+
 A modern, user-friendly web application for generating QR codes from website URLs. Built with Django and styled with Bootstrap 5.
 
 ## Features

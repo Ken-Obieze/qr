@@ -27,6 +27,12 @@ def generate_qr(request):
                 'qr_url': qr_url
             }
             return render(request, 'view_qr.html', context)
+        else:
+            # Form is invalid, re-render with errors
+            context = {
+                'form': form
+            }
+            return render(request, 'generate_qr.html', context)
     else:
         form = QRCodeForm()
         context = {
